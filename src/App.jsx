@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { useTasks } from "./hooks/useTasks";
-import TaskList from "./components/TaskList";
-import TaskModal from "./components/TaskModal";
+import { lazy, Suspense, useState } from 'react'
+import { useTasks } from './hooks/useTasks'
+import ErrorBoundary from './components/ErrorBoundary'
+import Spinner from './components/Spinner'
 
-const FILTERS = ["all", "active", "completed"];
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Stats = lazy(() => import('./pages/Stats'))
 
 function App() {
   const {
@@ -14,68 +15,66 @@ function App() {
     deleteTask,
     toggleTask,
     setFilter,
-  } = useTasks();
+  } = useTasks()
 
-  const [text, setText] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleAdd = () => {
-    if (!text.trim()) return;
-    addTask(text);
-    setText("");
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") handleAdd();
-  };
+  const [page, setPage] = useState('dashboard')
 
   return (
     <div className="max-w-lg mx-auto mt-10">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
-          Task Manager
-          <span className="ml-2 text-sm font-normal text-gray-400">
-            {totalCount} total
-          </span>
-        </h1>
+
+      <nav className="flex gap-2 mb-8">
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600"
-          onClick={() => setIsModalOpen(true)}
+          onMouseEnter={() => import('./pages/Stats')}
+          onClick={() => setPage('dashboard')}
+          className={`px-4 py-2 rounded text-sm ${
+            page === 'dashboard'
+              ? 'bg-blue-500 text-white'
+              : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+          }`}
         >
-          + Add task
+          Dashboard
         </button>
-      </div>
 
-      <div className="flex gap-2 mb-4">
-        {FILTERS.map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-3 py-1 rounded text-sm capitalize ${
-              filter === f
-                ? "bg-blue-500 text-white"
-                : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
+        <button
+          onMouseEnter={() => import('./pages/Dashboard')}
+          onClick={() => setPage('stats')}
+          className={`px-4 py-2 rounded text-sm ${
+            page === 'stats'
+              ? 'bg-blue-500 text-white'
+              : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          Stats
+        </button>
+      </nav>
 
-      <TaskList
-        tasks={tasks}
-        onToggle={toggleTask}
-        onDelete={deleteTask}
-      />
+      <ErrorBoundary>
+        <Suspense fallback={<Spinner />}>
 
-      {isModalOpen && (
-        <TaskModal
-          onAdd={addTask}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
+          {page === 'dashboard' && (
+            <Dashboard
+              tasks={tasks}
+              filter={filter}
+              totalCount={totalCount}
+              addTask={addTask}
+              deleteTask={deleteTask}
+              toggleTask={toggleTask}
+              setFilter={setFilter}
+            />
+          )}
+
+          {page === 'stats' && (
+            <Stats
+              tasks={tasks}
+              totalCount={totalCount}
+            />
+          )}
+
+        </Suspense>
+      </ErrorBoundary>
+
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
