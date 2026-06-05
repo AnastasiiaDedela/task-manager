@@ -1,18 +1,24 @@
+import { useState } from 'react'
+import { useTheme } from '../context/ThemeContext'
+import { colors } from '../theme'
 import TaskList from '../components/TaskList'
 import TaskModal from '../components/TaskModal'
-import { useState } from 'react'
 
 const FILTERS = ['all', 'active', 'completed']
 
 function Dashboard({ tasks, filter, totalCount, addTask, deleteTask, toggleTask, setFilter }) {
+  const { theme } = useTheme()
+  const c = colors[theme]
+
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className={`text-2xl font-bold ${c.text}`}>
           Task Manager
-          <span className="ml-2 text-sm font-normal text-gray-400">
+          <span className={`ml-2 text-sm font-normal ${c.textMuted}`}>
             {totalCount} total
           </span>
         </h1>
@@ -30,9 +36,7 @@ function Dashboard({ tasks, filter, totalCount, addTask, deleteTask, toggleTask,
             key={f}
             onClick={() => setFilter(f)}
             className={`px-3 py-1 rounded text-sm capitalize ${
-              filter === f
-                ? 'bg-blue-500 text-white'
-                : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+              filter === f ? c.filterActive : c.filterInactive
             }`}
           >
             {f}

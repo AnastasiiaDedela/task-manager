@@ -1,5 +1,7 @@
 import { lazy, Suspense, useState } from 'react'
 import { useTasks } from './hooks/useTasks'
+import { useTheme } from './context/ThemeContext'
+import { colors } from './theme'
 import ErrorBoundary from './components/ErrorBoundary'
 import Spinner from './components/Spinner'
 
@@ -17,62 +19,75 @@ function App() {
     setFilter,
   } = useTasks()
 
+  const { theme, toggleTheme } = useTheme()
+
+  const c = colors[theme]
+
   const [page, setPage] = useState('dashboard')
 
   return (
-    <div className="max-w-lg mx-auto mt-10">
 
-      <nav className="flex gap-2 mb-8">
-        <button
-          onMouseEnter={() => import('./pages/Stats')}
-          onClick={() => setPage('dashboard')}
-          className={`px-4 py-2 rounded text-sm ${
-            page === 'dashboard'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
-          }`}
-        >
-          Dashboard
-        </button>
+    <div className={`min-h-screen ${c.bg} transition-colors duration-300`}>
 
-        <button
-          onMouseEnter={() => import('./pages/Dashboard')}
-          onClick={() => setPage('stats')}
-          className={`px-4 py-2 rounded text-sm ${
-            page === 'stats'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
-          }`}
-        >
-          Stats
-        </button>
-      </nav>
 
-      <ErrorBoundary>
-        <Suspense fallback={<Spinner />}>
+      <div className="max-w-lg mx-auto pt-10 px-4">
 
-          {page === 'dashboard' && (
-            <Dashboard
-              tasks={tasks}
-              filter={filter}
-              totalCount={totalCount}
-              addTask={addTask}
-              deleteTask={deleteTask}
-              toggleTask={toggleTask}
-              setFilter={setFilter}
-            />
-          )}
+        <div className="flex items-center justify-between mb-8">
 
-          {page === 'stats' && (
-            <Stats
-              tasks={tasks}
-              totalCount={totalCount}
-            />
-          )}
+          <nav className="flex gap-2">
+            <button
+              onMouseEnter={() => import('./pages/Dashboard')}
+              onClick={() => setPage('dashboard')}
+              className={`px-4 py-2 rounded text-sm ${
+                page === 'dashboard' ? c.navActive : c.navInactive
+              }`}
+            >
+              Dashboard
+            </button>
+            <button
+              onMouseEnter={() => import('./pages/Stats')}
+              onClick={() => setPage('stats')}
+              className={`px-4 py-2 rounded text-sm ${
+                page === 'stats' ? c.navActive : c.navInactive
+              }`}
+            >
+              Stats
+            </button>
+          </nav>
 
-        </Suspense>
-      </ErrorBoundary>
 
+          <button
+            onClick={toggleTheme}
+            className={`px-3 py-2 rounded text-sm ${c.navInactive}`}
+          >
+            {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
+          </button>
+
+        </div>
+
+        <ErrorBoundary>
+          <Suspense fallback={<Spinner />}>
+            {page === 'dashboard' && (
+              <Dashboard
+                tasks={tasks}
+                filter={filter}
+                totalCount={totalCount}
+                addTask={addTask}
+                deleteTask={deleteTask}
+                toggleTask={toggleTask}
+                setFilter={setFilter}
+              />
+            )}
+            {page === 'stats' && (
+              <Stats
+                tasks={tasks}
+                totalCount={totalCount}
+              />
+            )}
+          </Suspense>
+        </ErrorBoundary>
+
+      </div>
     </div>
   )
 }

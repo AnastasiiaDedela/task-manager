@@ -1,18 +1,20 @@
-import { useState, useEffect } from 'react'  // ← add useEffect
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { useTheme } from '../context/ThemeContext'
+import { colors } from '../theme'
 
 function TaskModal({ onAdd, onClose }) {
+  const { theme } = useTheme()
+  const c = colors[theme]
+
   const [text, setText] = useState('')
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose()
     }
-
     document.addEventListener('keydown', handleKeyDown)
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-    }
+    return () => document.removeEventListener('keydown', handleKeyDown)
   }, [onClose])
 
   const handleAdd = () => {
@@ -28,15 +30,15 @@ function TaskModal({ onAdd, onClose }) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4"
+        className={`${c.surface} rounded-lg shadow-xl p-6 w-full max-w-md mx-4`}
         onClick={e => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+        <h2 className={`text-lg font-semibold ${c.text} mb-4`}>
           Add new task
         </h2>
 
         <input
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
+          className={`w-full border ${c.border} ${c.surface} ${c.text} rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4`}
           value={text}
           onChange={e => setText(e.target.value)}
           placeholder="What needs to be done?"
@@ -45,7 +47,7 @@ function TaskModal({ onAdd, onClose }) {
 
         <div className="flex justify-end gap-2">
           <button
-            className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+            className={`px-4 py-2 text-sm ${c.text} border ${c.border} rounded hover:opacity-80`}
             onClick={onClose}
           >
             Cancel
