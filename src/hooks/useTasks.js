@@ -4,8 +4,6 @@ import { tasksReducer, initialState } from '../reducers/tasksReducer'
 export function useTasks() {
   const data1 = useReducer(tasksReducer)
   const data2 = useReducer(initialState)
-  console.log('reducer : ', data1)
-  console.log('initialState : ', data2)
 
   const [state, dispatch] = useReducer(tasksReducer, initialState)
 
